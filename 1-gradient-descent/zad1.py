@@ -1,5 +1,4 @@
 import math
-import random
 import numpy as np
 
 def function(z: list):
@@ -12,24 +11,15 @@ def dfdy(z: list):
     x, y = z
     return -9*x * (2*y**2 - 1) / math.e**(x**2 + x/2 + y**2)
 def gradient(z: list):
-    return [dfdx(z), dfdx(z)]
-def gradient_x(z: list):
-    return dfdx(z)
-def gradient_y(z: list):
-    return dfdy(z)
+    return np.array([dfdx(z), dfdy(z)])
 
 def sgd_minimum(initial: list, alpha=0.1, steps=1000):
     x_n = list(initial)
-    grad = np.array(gradient(x_n))
+    grad = gradient(x_n)
     diff = -alpha * grad
     for _ in range(steps):
-        rand = random.randint(0, 1)
-        if rand == 1:
-            diff[0] = -alpha * gradient_x(x_n)
-            x_n += diff
-        else: 
-            diff[1] = -alpha * gradient_y(x_n)
-            x_n += diff
+        diff = -alpha * gradient(x_n)
+        x_n += diff
         if np.all(np.abs(diff) <= 1e-06):
             break
     return x_n
@@ -39,13 +29,8 @@ def sgd_maximum(initial: list, alpha=0.1, steps=1000):
     grad = np.array(gradient(x_n))
     diff = alpha * grad
     for _ in range(steps):
-        rand = random.randint(0, 1)
-        if rand == 1:
-            grad = np.array(gradient(x_n))
-            diff = alpha * grad
-            x_n += diff
-        else: 
-            x_n += diff
+        diff = alpha * gradient(x_n)
+        x_n += diff
         if np.all(np.abs(diff) <= 1e-06):
             break
     return x_n

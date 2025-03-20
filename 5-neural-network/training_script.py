@@ -35,6 +35,7 @@ def model_train(model=MLP(h_size=1, neuron_number=4, dropout=False)):
     for epoch in range(n_epochs):
         model.train() # Set the model to training mode
         total_training_loss = []
+        total_training_acc = []
         # Training loop
         for _, (inputs, targets) in enumerate(train_loader):
             outputs = model(inputs) # Forward pass
@@ -42,27 +43,30 @@ def model_train(model=MLP(h_size=1, neuron_number=4, dropout=False)):
             total_training_loss.append(loss.item())
             optimizer.zero_grad() # Reset the gradients
             loss.backward() # Backward pass
-            training_accuracy = acc(outputs, targets)
+            total_training_acc.append(acc(outputs, targets))
             optimizer.step() # Update the weights
         total_training_loss = np.mean(total_training_loss)
+        total_training_acc = np.mean(total_training_acc)
         # Validation loop
         model.eval() # Set the model to evaluation mode
         total_valid_loss = []
+        total_valid_acc = []
         for inputs, targets in validation_loader:
             with torch.no_grad():
                 outputs = model(inputs) # Forward pass
                 valid_loss = loss_fn(outputs, targets) # Compute the loss
                 total_valid_loss.append(valid_loss.item())
-                validation_accuracy = acc(outputs, targets)
+                total_valid_acc.append(acc(outputs, targets))
         total_valid_loss = np.mean(total_valid_loss)
+        total_valid_acc = np.mean(total_valid_acc)
 
-        if validation_accuracy > best_val_acc or (total_training_loss <= best_training and validation_accuracy >= best_val_acc):
-            best_val_acc = validation_accuracy
-            best_train_acc = training_accuracy
+        if total_valid_acc > best_val_acc or (total_training_loss <= best_training and total_valid_acc >= best_val_acc):
+            best_val_acc = total_valid_acc
+            best_train_acc = total_training_acc
             best_validation = total_valid_loss
             best_training = total_training_loss
             best_weights = model.state_dict()
-        print(f"Epoch {epoch+1}/{n_epochs}, Training Loss: {total_training_loss:.4f}, Training Accuracy={training_accuracy:.4f}; Validation Loss: {total_valid_loss:.4f}, Validation Accuracy={validation_accuracy:.4f}")
+        print(f"Epoch {epoch+1}/{n_epochs}, Training Loss: {total_training_loss:.4f}, Training Accuracy={total_training_acc:.4f}; Validation Loss: {total_valid_loss:.4f}, Validation Accuracy={total_valid_acc:.4f}")
     # Restore best model
     model.load_state_dict(best_weights)
     torch.save(model.state_dict(), "data/state_dict.pickle")

@@ -168,11 +168,11 @@ class Perceptron:
         db_mean.append(np.zeros((self.output, 1)))
         for el in self._weights:
             for i, layer in enumerate(el):
-                dw_mean[i] += layer
+                dw_mean[i] += layer/batch_size
         for el in self._bias:
             for i, layer in enumerate(el):
-                db_mean[i] += layer
-       
+                db_mean[i] += layer/batch_size
+
         for el in self._weights:
             for j, layer in enumerate(el):
                 layer -= (learning_rate*dw_mean[j] + L2*layer)

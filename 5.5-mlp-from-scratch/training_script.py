@@ -9,13 +9,13 @@ test_dataset = MLPDataset('test')
 sample_X, sample_y = train_dataset[0]
 features = sample_X.shape[0]
 targets = sample_y.shape[0]
+
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=1, shuffle=True)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
 
-model = MLP(input=features, output=targets, hid_layers=1, neurons=4)
+model = MLP(input=features, output=targets, hid_layers=1, neurons=16)
 
-
-for epoch in range(30):
+for epoch in range(10):
     for input, target in train_loader:
         model.training(input, target)
     mean_loss = model.loss().mean()

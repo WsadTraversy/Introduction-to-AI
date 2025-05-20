@@ -1,7 +1,7 @@
 import numpy as np
 
 class MLP:
-    def __init__(self, input, output, hid_layers, neurons, activation="ReLU", problem_type="classification"):
+    def __init__(self, input, output, hid_layers, neurons, activation="ReLU", problem_type="regression"):
         self.input = input
         self.output = output
         self.hid_layers = hid_layers
@@ -103,7 +103,7 @@ class MLP:
         self._dw[0] = self._dz[0]@X
 
         
-    def training(self, X, y, learning_rate=0.001):
+    def training(self, X, y, learning_rate=0.1):
         X = np.array(X)
         y = np.array(y)
 
@@ -112,13 +112,12 @@ class MLP:
             self._initialized = True
 
         self._forward(X)
-        loss = self._cost_function(self._z[-1], y)
+        loss = self._cost_function(self._z[-1], y.T)
         self._loss.append(loss)
         self._backward(X, y)
         for i, layer in enumerate(self._weights):
             layer -= learning_rate*self._dw[i]
             self._bias[i] -= learning_rate*self._db[i]
-
         self._z = [None] * (self.hid_layers+1)
         self._a = [None] * (self.hid_layers)
         self._dz = [None] * (self.hid_layers+1)
@@ -130,7 +129,5 @@ class MLP:
     def evaluate(self, X):
         X = np.array(X)
         
-        X = X if len(X.shape) > 1 and X.shape[1] > 0 else np.expand_dims(X, axis=0)
-
         self._forward(X)
         return self._z[-1].T

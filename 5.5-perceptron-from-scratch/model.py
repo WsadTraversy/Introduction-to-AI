@@ -1,6 +1,6 @@
 import numpy as np
 
-class Perceptron:
+class MLP:
     def __init__(self, input, output, hid_layers, neurons, activation="ReLU", problem_type="classification"):
         self.input = input
         self.output = output

@@ -1,10 +1,9 @@
 from torch.utils.data import Dataset
-from process_data import get_data_1
-import torch
+from process_data import get_data_2
 
-class MLPDataset():
+class MLPDataset(Dataset):
     def __init__(self, set):
-        xy_train, xy_test = get_data_1()
+        xy_train, xy_test = get_data_2()
         if set == 'train':
             xy = xy_train
         elif set == 'test':

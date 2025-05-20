@@ -27,13 +27,13 @@ class MLP:
 
 
     def _initialize_weights(self):
-        weights_holder = [np.random.normal(loc=0.5, scale=0.5, size=(self.neurons, self.input))]
-        bias_holder = [np.random.normal(loc=0.5, scale=0.5, size=(self.neurons, 1))]
+        weights_holder = [np.random.normal(loc=0.0, scale=0.1, size=(self.neurons, self.input))]
+        bias_holder = [np.random.normal(loc=0.0, scale=0.1, size=(self.neurons, 1))]
         for _ in range(self.hid_layers-1):
-            weights_holder.append(np.random.normal(loc=0.5, scale=0.5, size=(self.neurons, self.neurons)))
-            bias_holder.append(np.random.normal(loc=0.5, scale=0.5, size=(self.neurons, 1)))
-        weights_holder.append(np.random.normal(loc=0.5, scale=0.5, size=(self.output, self.neurons)))
-        bias_holder.append(np.random.normal(loc=0.5, scale=0.5, size=(self.output, 1)))
+            weights_holder.append(np.random.normal(loc=0.0, scale=0.1, size=(self.neurons, self.neurons)))
+            bias_holder.append(np.random.normal(loc=0.0, scale=0.1, size=(self.neurons, 1)))
+        weights_holder.append(np.random.normal(loc=0.0, scale=0.1, size=(self.output, self.neurons)))
+        bias_holder.append(np.random.normal(loc=0.0, scale=0.1, size=(self.output, 1)))
             
         self._weights = weights_holder.copy()
         self._bias = bias_holder.copy() 
@@ -49,7 +49,7 @@ class MLP:
         if self.problem_type == "regression":
             return (1/2)*(np.sum(h - y.T)**2)
         if self.problem_type == "classification":
-            return  -np.sum(y.T*np.log(h)+(1-y.T)*np.log(1-h))
+            return  -np.sum(y.T*np.log(h + 1e-8)+(1-y.T + 1e-8)*np.log(1-h + 1e-8))
 
 
     def _activation_function(self, z):
@@ -83,7 +83,6 @@ class MLP:
         for i in range(1, len(self._weights)-1):
             self._z[i] = (self._weights[i]@self._a[i-1]+self._bias[i])
             self._a[i] = (self._activation_function(self._z[i]))
-        
         self._z[-1] = (self._weights[-1]@self._a[-1]+self._bias[-1])
         if self.problem_type == "classification":
             self._z[-1] = 1/(1+np.exp(-self._z[-1]))
@@ -104,7 +103,7 @@ class MLP:
         self._dw[0] = self._dz[0]@X
 
         
-    def training(self, X, y, learning_rate=0.01):
+    def training(self, X, y, learning_rate=0.001):
         X = np.array(X)
         y = np.array(y)
 
@@ -134,4 +133,4 @@ class MLP:
         X = X if len(X.shape) > 1 and X.shape[1] > 0 else np.expand_dims(X, axis=0)
 
         self._forward(X)
-        return self._z[-1]
+        return self._z[-1].T

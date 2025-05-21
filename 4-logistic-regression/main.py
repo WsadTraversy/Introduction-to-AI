@@ -25,7 +25,7 @@ def main():
     run = True
     pygame.time.delay(1000)
     while run:
-        pygame.time.delay(100)  # Adjust game speed, decrease to test your agent and model quickly
+        pygame.time.delay(200)  # Adjust game speed, decrease to test your agent and model quickly
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -113,17 +113,40 @@ class BehavioralCloningAgent:
                            "right":self.clf_right.predict(data_sample),
                            "down":self.clf_down.predict(data_sample),
                            "left":self.clf_left.predict(data_sample)}
-        val = max(predicted_values.items(), key=operator.itemgetter(1))[0]
-        if val == "left":
-            action = Direction.LEFT
-        elif val == "right":
-            action = Direction.RIGHT
-        elif val == "up":
-            action = Direction.UP
-        elif val == "down":
-            action = Direction.DOWN
+        predicted_values = sorted(predicted_values.items(), key=operator.itemgetter(1))
+        val = predicted_values[-1][0]
+        second_val = predicted_values[-2][0]
+
+        current_direction = game_state['snake_direction']
+
+        if val == 'up' and current_direction != Direction.DOWN:
+            action = self.get_direction(val)
+        elif val == 'up':
+            action = self.get_direction(second_val)
+        if val == 'right' and current_direction != Direction.LEFT:
+            action = self.get_direction(val)
+        elif val == 'right':
+            action = self.get_direction(second_val)  
+        if val == 'down' and current_direction != Direction.UP:
+            action = self.get_direction(val)
+        elif val == 'down':
+            action = self.get_direction(second_val)
+        if val == 'left' and current_direction != Direction.RIGHT:
+            action = self.get_direction(val)
+        elif val == 'left':
+            action = self.get_direction(second_val)
 
         return action
+        
+    def get_direction(self, num):
+        if num == 'up':
+            return Direction.UP
+        elif num == 'right':
+            return Direction.RIGHT
+        elif num == 'down':
+            return Direction.DOWN
+        elif num == 'left':
+            return Direction.LEFT
     
     def dump_data(self):
         pass

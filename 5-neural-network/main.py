@@ -107,19 +107,41 @@ class BehavioralCloningAgent:
         data_sample = game_state_to_data_sample(processed_state)
         self.model.eval()
         y_pred = self.model(data_sample)
-        val = torch.argmax(y_pred)
-    
-        if val == torch.tensor(0):
-            action = Direction.UP
-        elif val == torch.tensor(1):
-            action = Direction.RIGHT
-        elif val == torch.tensor(2):
-            action = Direction.DOWN
-        elif val == torch.tensor(3):
-            action = Direction.LEFT
+        indices = torch.argsort(y_pred, descending=True)
+        val = int(indices[0][0])
+        second_val = int(indices[0][1])
+
+        current_direction = game_state['snake_direction']
+
+        if val == 0 and current_direction != Direction.DOWN:
+            action = self.get_direction(val)
+        elif val == 0:
+            action = self.get_direction(second_val)
+        if val == 1 and current_direction != Direction.LEFT:
+            action = self.get_direction(val)
+        elif val == 1:
+            action = self.get_direction(second_val)  
+        if val == 2 and current_direction != Direction.UP:
+            action = self.get_direction(val)
+        elif val == 2:
+            action = self.get_direction(second_val)
+        if val == 3 and current_direction != Direction.RIGHT:
+            action = self.get_direction(val)
+        elif val == 3:
+            action = self.get_direction(second_val)
 
         return action
     
+    def get_direction(self, num):
+        if num == 0:
+            return Direction.UP
+        elif num == 1:
+            return Direction.RIGHT
+        elif num == 2:
+            return Direction.DOWN
+        elif num == 3:
+            return Direction.LEFT
+
     def dump_data(self):
         pass
 
